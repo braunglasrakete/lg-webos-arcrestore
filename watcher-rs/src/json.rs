@@ -64,6 +64,16 @@ mod tests {
     }
 
     #[test]
+    fn reads_replies_from_an_lg_c3() {
+        let audio = r#"{"returnValue":true,"lastSoundOutput":"tv_speaker","soundOutput":"external_arc","settingsSoundOutputs":["external_arc"]}"#;
+        assert_eq!(sound_output(audio).as_deref(), Some("external_arc"));
+        let settings = r#"{"subscribed":true,"category":"sound","method":"getSystemSettings","dimension":{"audioOutput":"default"},"settings":{"soundOutput":"external_arc"},"returnValue":true}"#;
+        assert_eq!(sound_output(settings).as_deref(), Some("external_arc"));
+        let volume = r#"{"returnValue":true,"volumeStatus":{"volumeLimitable":false,"activeStatus":true,"maxVolume":100,"soundOutput":"external_arc","volume":3,"muteStatus":false},"callerId":"com.webos.lunasend-25137"}"#;
+        assert_eq!(sound_output(volume).as_deref(), Some("external_arc"));
+    }
+
+    #[test]
     fn rejects_unsafe_output_values() {
         assert_eq!(sound_output(r#"{"soundOutput":"a\"}"}"#), None);
         assert_eq!(sound_output(r#"{"soundOutput":"x y"}"#), None);

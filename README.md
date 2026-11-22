@@ -37,22 +37,24 @@ If the native watcher cannot run on a TV, `control.sh` starts the original `app/
 
 ### Troubleshooting
 
-The watcher logs to `/tmp/arc-restore.log`. For a detailed log of every service reply, run this as root on the TV, then select **Install & Enable** again:
+The watcher logs to `/tmp/arc-restore/watcher.log`. For a detailed log of every service reply, run this as root on the TV, then select **Disable** and **Install & Enable** to restart the watcher:
 
 ```sh
-touch /var/lib/webosbrew/arc-restore/debug
+mkdir -p /tmp/arc-restore && touch /tmp/arc-restore/debug
 ```
 
-Remove that file to turn detailed logging off. To force the old shell watcher, create `/var/lib/webosbrew/arc-restore/shell` instead.
+The flag is cleared when the TV reboots. To force the old shell watcher, create `/var/lib/webosbrew/arc-restore/shell` instead.
 
 ## Build from source
 
-You need Rust (rustup), [cargo-zigbuild](https://github.com/rust-cross/cargo-zigbuild) (`pip install ziglang cargo-zigbuild`) and Node.js. From the repository root:
+You need Rust (rustup) and [cargo-zigbuild](https://github.com/rust-cross/cargo-zigbuild) (`pip install ziglang cargo-zigbuild`). From the repository root:
 
 ```sh
-sh scripts/build-watcher.sh   # unit tests, then build/bin/arc-restore-watcher-{armv7,aarch64}
-sh scripts/package.sh         # build/org.arc-restore.app_<version>_all.ipk
+cargo xtask build   # unit tests, then build/bin/arc-restore-watcher-{armv7,aarch64}
+cargo xtask ipk     # build, then build/org.arc-restore.app_<version>_all.ipk
 ```
+
+This needs only Rust and cargo-zigbuild, on Windows too. `scripts/build-watcher.sh` and `scripts/package.sh` (which uses the official `ares-package`, so it needs Node.js) do the same from a POSIX shell.
 
 `cargo test --manifest-path watcher-rs/Cargo.toml` runs the unit tests on any OS.
 

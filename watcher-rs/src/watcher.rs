@@ -11,7 +11,11 @@ use std::time::{Duration, Instant, SystemTime, UNIX_EPOCH};
 use crate::engine::Engine;
 use crate::luna::{self, Feed};
 
-const LOG_PATH: &str = "/tmp/arc-restore.log";
+const TMP_DIR: &str = "/tmp/arc-restore";
+const LOG_PATH: &str = "/tmp/arc-restore/watcher.log";
+/// Creating this file (or one named `debug` in the state dir) turns on
+/// detailed logging at the next start.
+const DEBUG_FLAG: &str = "/tmp/arc-restore/debug";
 const LOG_LIMIT: u64 = 256 * 1024;
 
 /// Polling when no subscription reports the Sound Out (watch.sh's interval).
@@ -161,7 +165,12 @@ pub fn run() {
     }
     let state = PathBuf::from(&args[1]);
     let hook = PathBuf::from(&args[2]);
-    let _ = DEBUG.set(Path::new(&state).join("debug").exists() || std::env::var("ARC_RESTORE_DEBUG").as_deref() == Ok("1"));
+    let _ = std::fs::create_dir_all(TMP_DIR);
+    let _ = DEBUG.set(
+        Path::new(DEBUG_FLAG).exists()
+            || state.join("debug").exists()
+            || std::env::var("ARC_RESTORE_DEBUG").as_deref() == Ok("1"),
+    );
 
     let mut w = Watcher {
         exe: std::env::current_exe().ok(),
