@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=1920, initial-scale=1">
+  <title>ARC Restore</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <main>
+    <section class="layout" aria-label="ARC Restore controls">
+      <div class="intro">
+        <img class="art" src="ark.png" alt="Cartoon Noah’s ark with animals on ocean waves">
+        <h1>ARC Restore</h1>
+        <p>Return to your previous Sound Out when a Bluetooth speaker disconnects.</p>
+      </div>
+      <div class="panel">
+        <div class="panel-heading">
+          <h2>Watcher</h2>
+          <span id="badge" class="badge">Checking</span>
+        </div>
+        <dl>
+          <div><dt>Current Sound Out</dt><dd id="route">—</dd></div>
+          <div><dt>Previous output</dt><dd id="previous">—</dd></div>
+        </dl>
+        <div class="controls">
+          <button id="enable" type="button"><span>Install &amp; Enable</span><span aria-hidden="true">→</span></button>
+          <button id="disable" type="button"><span>Disable</span><span aria-hidden="true">→</span></button>
+          <button id="status" type="button"><span>Refresh Status</span></button>
+        </div>
+        <p id="message" role="status" aria-live="polite">Checking Homebrew Channel…</p>
+      </div>
+    </section>
+    <footer><span>▲ ▼ Move</span><span>OK Select</span><span>Back Exit</span></footer>
+  </main>
+</body>
+</html>

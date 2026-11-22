@@ -1,0 +1,36 @@
+name: Publish ARC Restore v1.0.0
+
+on:
+  push:
+    branches: [main]
+    paths: [.github/workflows/release.yml]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: arc-restore-v1.0.0
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - name: Build and validate the IPK
+        run: |
+          test "$(node -p "require('./app/appinfo.json').version")" = "1.0.0"
+          npx --yes --package @webos-tools/cli@3.2.6 ares-package --no-minify -o . app
+          npx --yes --package @webos-tools/cli@3.2.6 ares-package -i org.arc-restore.app_1.0.0_all.ipk
+      - name: Publish the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if gh release view v1.0.0 >/dev/null 2>&1; then
+            echo "Release v1.0.0 already exists"
+            exit 0
+          fi
+          gh release create v1.0.0 org.arc-restore.app_1.0.0_all.ipk \
+            --target "$GITHUB_SHA" --title "ARC Restore 1.0.0" \
+            --notes "Initial release for rooted LG webOS TVs. Restores the previous Sound Out after Bluetooth disconnects and includes a remote-friendly interface, status display, and boot startup through Homebrew Channel."

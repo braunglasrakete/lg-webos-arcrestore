@@ -1,0 +1,87 @@
+:root {
+  color-scheme: dark;
+  font-family: Inter, "LG Smart UI", system-ui, sans-serif;
+  color: #f4f8f9;
+  background: #0b1b26;
+}
+* { box-sizing: border-box; }
+body { margin: 0; }
+main {
+  min-height: 100vh;
+  padding: 4.1vh 6.25vw 3.5vh;
+  background: radial-gradient(ellipse at 25% 48%, #193947, #0b1b26 65%);
+}
+footer, .panel-heading { display: flex; align-items: center; }
+.layout {
+  display: grid;
+  grid-template-columns: 1fr .93fr;
+  gap: 7vw;
+  align-items: center;
+  min-height: 84vh;
+  padding: 4vh 2.7vw;
+}
+.art {
+  display: block;
+  width: min(26vw, 40vh);
+  aspect-ratio: 1;
+  border-radius: 2.3vw;
+  box-shadow: 0 1.1vw 2.8vw #071219ad;
+}
+h1 { margin: 2.4vh 0 .9vh; font-size: 4.5vw; line-height: 1.02; letter-spacing: -.055em; }
+.intro p { margin: 0; max-width: 25vw; color: #bfd1d8; font-size: 1.53vw; line-height: 1.5; }
+.panel {
+  min-width: 0;
+  padding: 2.1vw;
+  background: #142a36;
+  border: 1px solid #46606e;
+  border-radius: 1.75vw;
+}
+.panel-heading { justify-content: space-between; gap: 1vw; }
+h2 { margin: 0; font-size: 2.05vw; }
+.badge {
+  padding: .43vw .78vw;
+  border: 1px solid #627986;
+  border-radius: 2vw;
+  color: #d4e2e7;
+  font-size: 1.03vw;
+  font-weight: 700;
+}
+.badge[data-state="running"] { background: #193e3b; color: #a9eed1; border-color: #4d987f; }
+.badge[data-state="stopped"], .badge[data-state="error"] { color: #ffcf9c; border-color: #b17c49; }
+dl { margin: 2.1vh 0 2.6vh; font-size: 1.28vw; }
+dl div { display: flex; justify-content: space-between; border-bottom: 1px solid #39515e; padding: 1.2vh 0; gap: .7vw; }
+dt { color: #bfd1d8; }
+dd { margin: 0; font-weight: 650; text-align: right; overflow-wrap: anywhere; }
+.controls { display: grid; gap: 1.15vh; }
+button {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  min-height: 6.8vh;
+  padding: .75vw 1.1vw;
+  border: 1px solid #627986;
+  border-radius: .66vw;
+  background: #1c3948;
+  color: #f4f8f9;
+  font: inherit;
+  font-size: 1.42vw;
+  font-weight: 700;
+  text-align: left;
+  cursor: pointer;
+}
+button:first-child { background: #265451; }
+button:focus, button:hover {
+  outline: .2vw solid #ffd18e;
+  outline-offset: .19vw;
+  background: #ffd18e;
+  color: #192c33;
+}
+button[aria-disabled="true"] { cursor: wait; }
+#message { margin: 1.8vh 0 0; min-height: 4.5vh; color: #bfd1d8; font-size: 1.13vw; line-height: 1.4; overflow-wrap: anywhere; }
+footer { border-top: 1px solid #39515e; gap: 2.1vw; padding: 2vh 0 0; color: #bfd1d8; font-size: 1.08vw; }
+@media (max-aspect-ratio: 4/3) {
+  .layout { grid-template-columns: 1fr; gap: 4vh; }
+  .art { width: min(24vw, 28vh); }
+  .intro p { max-width: none; }
+}

@@ -1,0 +1,12 @@
+{
+  "id": "org.arc-restore.app",
+  "version": "1.0.0",
+  "vendor": "ARC Restore",
+  "type": "web",
+  "main": "index.html",
+  "title": "ARC Restore",
+  "icon": "icon.png",
+  "largeIcon": "largeIcon.png",
+  "iconColor": "#112735",
+  "resolution": "1920x1080"
+}
