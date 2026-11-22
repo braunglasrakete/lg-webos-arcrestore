@@ -1,5 +1,6 @@
 name: Publish ARC Restore
 
+# Run from the Actions tab after bumping the version in app/appinfo.json.
 on:
   workflow_dispatch:
 
@@ -19,13 +20,14 @@ jobs:
         with:
           targets: armv7-unknown-linux-musleabihf,aarch64-unknown-linux-musl
       - run: pip install ziglang cargo-zigbuild
-      - name: Build and validate the IPK
+      - name: Build, package and write the Homebrew Channel manifest
+        env:
+          ARC_RESTORE_REPO: ${{ github.repository }}
         run: |
-          sh scripts/build-watcher.sh
-          sh scripts/package.sh
-          version=$(node -p "require('./app/appinfo.json').version")
-          echo "VERSION=$version" >> "$GITHUB_ENV"
-          npx --yes --package @webos-tools/cli@3.2.6 ares-package -i "build/org.arc-restore.app_${version}_all.ipk"
+          cargo xtask ipk
+          cargo xtask release-manifest
+          npx --yes --package @webos-tools/cli@3.2.6 ares-package -i build/*.ipk
+          echo "VERSION=$(node -p "require('./app/appinfo.json').version")" >> "$GITHUB_ENV"
       - name: Publish the release
         env:
           GH_TOKEN: ${{ github.token }}
@@ -34,6 +36,5 @@ jobs:
             echo "Release v$VERSION already exists"
             exit 0
           fi
-          gh release create "v$VERSION" "build/org.arc-restore.app_${VERSION}_all.ipk" \
-            --target "$GITHUB_SHA" --title "ARC Restore $VERSION" \
-            --notes "Native, event-driven watcher: reacts to Bluetooth disconnects as they happen instead of polling every 2 seconds. Falls back to the shell watcher if the native one cannot run."
+          gh release create "v$VERSION" build/*.ipk build/*.manifest.json build/repo.json \
+            --target "$GITHUB_SHA" --title "ARC Restore $VERSION" --generate-notes

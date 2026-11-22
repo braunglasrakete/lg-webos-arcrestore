@@ -7,4 +7,5 @@ license = "GPL-3.0-or-later"
 
 [dependencies]
 flate2 = "1"
+sha2 = "0.10"
 tar = "0.4"

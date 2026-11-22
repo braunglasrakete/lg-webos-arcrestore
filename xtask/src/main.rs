@@ -3,6 +3,7 @@
 //!
 //!   cargo xtask build    unit tests + static watcher binaries for 32- and 64-bit ARM
 //!   cargo xtask ipk      build, then write build/<id>_<version>_all.ipk
+//!   cargo xtask release-manifest   Homebrew Channel manifest + repo.json (release.rs)
 //!
 //! Cross-compiling needs cargo-zigbuild and zig: `pip install ziglang cargo-zigbuild`.
 //!
@@ -14,6 +15,8 @@
 use std::io::Write;
 use std::path::{Path, PathBuf};
 use std::process::Command;
+
+mod release;
 
 type Result<T> = std::result::Result<T, String>;
 
@@ -28,7 +31,8 @@ fn main() {
     let result = match std::env::args().nth(1).as_deref() {
         Some("build") => build(),
         Some("ipk") => build().and_then(|_| ipk()).map(|_| ()),
-        _ => Err("usage: cargo xtask build | ipk".into()),
+        Some("release-manifest") => release::manifest(),
+        _ => Err("usage: cargo xtask build | ipk | release-manifest".into()),
     };
     if let Err(e) = result {
         eprintln!("error: {e}");
@@ -96,7 +100,7 @@ fn build() -> Result<()> {
 }
 
 /// A string field of app/appinfo.json (flat enough for a plain search).
-fn appinfo_field(json: &str, key: &str) -> Result<String> {
+pub fn appinfo_field(json: &str, key: &str) -> Result<String> {
     let needle = format!("\"{key}\"");
     let at = json.find(&needle).ok_or(format!("appinfo.json has no {key}"))? + needle.len();
     let rest = json[at..].trim_start().strip_prefix(':').ok_or("bad appinfo.json")?.trim_start();
@@ -104,7 +108,7 @@ fn appinfo_field(json: &str, key: &str) -> Result<String> {
     Ok(rest[..rest.find('"').ok_or("bad appinfo.json")?].to_string())
 }
 
-fn json_string(s: &str) -> String {
+pub fn json_string(s: &str) -> String {
     let mut out = String::from("\"");
     for c in s.chars() {
         match c {

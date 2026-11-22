@@ -54,8 +54,8 @@ cargo xtask build   # unit tests, then build/bin/arc-restore-watcher-{armv7,aarc
 cargo xtask ipk     # build, then build/org.arc-restore.app_<version>_all.ipk
 ```
 
-This needs only Rust and cargo-zigbuild, on Windows too. `scripts/build-watcher.sh` and `scripts/package.sh` (which uses the official `ares-package`, so it needs Node.js) do the same from a POSIX shell.
+This needs only Rust and cargo-zigbuild, on Windows too. `scripts/build-watcher.sh` does the build step from a POSIX shell. `cargo test --manifest-path watcher-rs/Cargo.toml` runs the unit tests on any OS.
 
-`cargo test --manifest-path watcher-rs/Cargo.toml` runs the unit tests on any OS.
+`cargo xtask release-manifest` writes the Homebrew Channel manifest and a `repo.json` index next to the IPK. The **Publish ARC Restore** workflow attaches all three to a GitHub release, so `https://github.com/<owner>/<repo>/releases/latest/download/repo.json` works as a Homebrew Channel repository.
 
 The JSON helpers and the subscription approach in `watcher-rs` are adapted from the MIT-licensed [Webos-EARC-Volume-Overlay](https://github.com/danzig666/Webos-EARC-Volume-Overlay) watcher (Copyright (c) 2026 eARC Volume Overlay contributors).
