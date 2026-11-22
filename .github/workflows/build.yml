@@ -1,0 +1,27 @@
+name: Build ARC Restore
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: armv7-unknown-linux-musleabihf,aarch64-unknown-linux-musl
+      - run: pip install ziglang cargo-zigbuild
+      - name: Check the shell scripts
+        run: for f in app/scripts/*.sh scripts/*.sh; do sh -n "$f"; done
+      - name: Test, build and package
+        run: cargo xtask ipk
+      - name: Validate the IPK with the webOS CLI
+        run: npx --yes --package @webos-tools/cli@3.2.6 ares-package -i build/*.ipk
+      - uses: actions/upload-artifact@v4
+        with:
+          name: arc-restore-ipk
+          path: build/*.ipk

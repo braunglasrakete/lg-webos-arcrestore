@@ -1,16 +1,14 @@
-name: Publish ARC Restore v1.0.0
+name: Publish ARC Restore
 
+# Run from the Actions tab after bumping the version in app/appinfo.json.
 on:
-  push:
-    branches: [main]
-    paths: [.github/workflows/release.yml]
   workflow_dispatch:
 
 permissions:
   contents: write
 
 concurrency:
-  group: arc-restore-v1.0.0
+  group: arc-restore-release
 
 jobs:
   release:
@@ -18,19 +16,25 @@ jobs:
     if: github.ref == 'refs/heads/main'
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
-      - name: Build and validate the IPK
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: armv7-unknown-linux-musleabihf,aarch64-unknown-linux-musl
+      - run: pip install ziglang cargo-zigbuild
+      - name: Build, package and write the Homebrew Channel manifest
+        env:
+          ARC_RESTORE_REPO: ${{ github.repository }}
         run: |
-          test "$(node -p "require('./app/appinfo.json').version")" = "1.0.0"
-          npx --yes --package @webos-tools/cli@3.2.6 ares-package --no-minify -o . app
-          npx --yes --package @webos-tools/cli@3.2.6 ares-package -i org.arc-restore.app_1.0.0_all.ipk
+          cargo xtask ipk
+          cargo xtask release-manifest
+          npx --yes --package @webos-tools/cli@3.2.6 ares-package -i build/*.ipk
+          echo "VERSION=$(node -p "require('./app/appinfo.json').version")" >> "$GITHUB_ENV"
       - name: Publish the release
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          if gh release view v1.0.0 >/dev/null 2>&1; then
-            echo "Release v1.0.0 already exists"
+          if gh release view "v$VERSION" >/dev/null 2>&1; then
+            echo "Release v$VERSION already exists"
             exit 0
           fi
-          gh release create v1.0.0 org.arc-restore.app_1.0.0_all.ipk \
-            --target "$GITHUB_SHA" --title "ARC Restore 1.0.0" \
-            --notes "Initial release for rooted LG webOS TVs. Restores the previous Sound Out after Bluetooth disconnects and includes a remote-friendly interface, status display, and boot startup through Homebrew Channel."
+          gh release create "v$VERSION" build/*.ipk build/*.manifest.json build/repo.json \
+            --target "$GITHUB_SHA" --title "ARC Restore $VERSION" --generate-notes
