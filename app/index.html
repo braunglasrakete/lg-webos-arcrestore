@@ -8,31 +8,59 @@
   <script src="app.js" defer></script>
 </head>
 <body>
-  <main>
-    <section class="layout" aria-label="ARC Restore controls">
-      <div class="intro">
-        <img class="art" src="ark.png" alt="Cartoon Noah’s ark with animals on ocean waves">
-        <h1>ARC Restore</h1>
-        <p>Return to your previous Sound Out when a Bluetooth speaker disconnects.</p>
+  <div class="screen">
+    <header class="topbar">
+      <img class="logo" src="ark.png" alt="">
+      <span class="brand">ARC Restore</span>
+      <span class="topbar-status"><span id="dot" class="dot" aria-hidden="true"></span><span id="badge" class="badge">Checking</span></span>
+    </header>
+
+    <main class="content">
+      <div class="title-row">
+        <h1>Sound Out</h1>
+        <p class="lede">Returns your TV to its previous Sound Out when a Bluetooth speaker disconnects.</p>
       </div>
-      <div class="panel">
-        <div class="panel-heading">
-          <h2>Watcher</h2>
-          <span id="badge" class="badge">Checking</span>
-        </div>
-        <dl>
-          <div><dt>Current Sound Out</dt><dd id="route">—</dd></div>
-          <div><dt>Previous output</dt><dd id="previous">—</dd></div>
-        </dl>
-        <div class="controls">
-          <button id="enable" type="button"><span>Install &amp; Enable</span><span aria-hidden="true">→</span></button>
-          <button id="disable" type="button"><span>Disable</span><span aria-hidden="true">→</span></button>
-          <button id="status" type="button"><span>Refresh Status</span></button>
-        </div>
-        <p id="message" role="status" aria-live="polite">Checking Homebrew Channel…</p>
+
+      <div class="grid">
+        <section class="card" aria-labelledby="outputs-heading">
+          <h2 id="outputs-heading" class="section-label">Outputs</h2>
+          <div class="route">
+            <span class="route-label">Playing through</span>
+            <span id="route" class="route-value">—</span>
+          </div>
+          <div class="rows">
+            <div class="row"><span class="row-key">Restores to</span><span id="previous" class="row-value">—</span></div>
+            <div class="row"><span class="row-key">Watcher</span><span id="watcher" class="row-value">—</span></div>
+            <div class="row"><span class="row-key">Reacts to changes</span><span id="events" class="row-value">—</span></div>
+          </div>
+        </section>
+
+        <section class="card" aria-labelledby="watcher-heading">
+          <h2 id="watcher-heading" class="section-label">Watcher</h2>
+          <p id="message" class="notice" data-tone="info" role="status" aria-live="polite">Checking Homebrew Channel…</p>
+          <div class="controls">
+            <button id="enable" class="btn btn-primary" type="button">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"></path></svg>
+              <span>Install &amp; Enable</span>
+            </button>
+            <button id="disable" class="btn btn-danger" type="button">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
+              <span>Disable</span>
+            </button>
+            <button id="status" class="btn btn-secondary" type="button">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 2v6h-6"></path><path d="M3 12a9 9 0 0 1 15-6.7L21 8"></path><path d="M3 22v-6h6"></path><path d="M21 12a9 9 0 0 1-15 6.7L3 16"></path></svg>
+              <span>Refresh Status</span>
+            </button>
+          </div>
+        </section>
       </div>
-    </section>
-    <footer><span>▲ ▼ Move</span><span>OK Select</span><span>Back Exit</span></footer>
-  </main>
+    </main>
+
+    <footer class="keys">
+      <span class="key"><kbd>▲ ▼</kbd>Move</span>
+      <span class="key"><kbd>OK</kbd>Select</span>
+      <span class="key"><kbd>Back</kbd>Exit</span>
+    </footer>
+  </div>
 </body>
 </html>

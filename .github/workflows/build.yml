@@ -1,0 +1,30 @@
+name: Build ARC Restore
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: armv7-unknown-linux-musleabihf,aarch64-unknown-linux-musl
+      - run: pip install ziglang cargo-zigbuild
+      - name: Test and build the native watcher
+        run: sh scripts/build-watcher.sh
+      - name: Check the shell scripts
+        run: for f in app/scripts/*.sh scripts/*.sh; do sh -n "$f"; done
+      - name: Package and validate the IPK
+        run: |
+          sh scripts/package.sh
+          version=$(node -p "require('./app/appinfo.json').version")
+          npx --yes --package @webos-tools/cli@3.2.6 ares-package -i "build/org.arc-restore.app_${version}_all.ipk"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: arc-restore-ipk
+          path: build/*.ipk

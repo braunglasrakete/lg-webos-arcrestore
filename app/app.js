@@ -8,6 +8,9 @@
   const message = document.getElementById('message');
   const route = document.getElementById('route');
   const previous = document.getElementById('previous');
+  const dot = document.getElementById('dot');
+  const watcher = document.getElementById('watcher');
+  const events = document.getElementById('events');
   const labels = {
     running: 'Enabled',
     disabled: 'Disabled',
@@ -32,7 +35,30 @@
     Restored: 'Previous output restored.',
     Waiting: 'Watching for Bluetooth audio.'
   };
+  const detailTones = {
+    Bluetooth: 'info',
+    CheckingRestore: 'warn',
+    Retrying: 'warn',
+    RestoreFailed: 'danger',
+    Restored: 'ok',
+    Waiting: 'ok'
+  };
+  const feeds = {
+    'settings+volume': 'Instantly',
+    settings: 'Instantly (settings only)',
+    volume: 'Instantly (audio only)',
+    polling: 'Every 2 seconds'
+  };
   let busy = false;
+
+  // The notice takes the tone of the latest message; the status dot stays
+  // green while the watcher runs unless something needs attention.
+  function setTone(tone, running) {
+    message.dataset.tone = tone;
+    if (tone === 'warn' || tone === 'danger') dot.dataset.tone = tone;
+    else if (running) dot.dataset.tone = 'ok';
+    else delete dot.dataset.tone;
+  }
 
   function invoke(action) {
     const command =
@@ -91,22 +117,35 @@
     route.textContent = outputs[currentOutput] || currentOutput || '—';
     previous.textContent = outputs[fields.previous] || fields.previous || '—';
 
+    const running = fields.state === 'running';
+    watcher.textContent = !running ? '—' : fields.watcher === 'native' ? 'Native (Rust)' : 'Shell script';
+    events.textContent = !running ? '—' : feeds[fields.events] || 'Every 2 seconds';
+
     let statusText;
+    let tone;
     switch (fields.state) {
       case 'running':
         statusText = details[fields.detail] || 'Watcher is starting…';
+        tone = detailTones[fields.detail] || 'neutral';
         break;
       case 'stopped':
         statusText = 'The boot hook is enabled. Select Install & Enable to restart the watcher.';
+        tone = 'warn';
         break;
       case 'disabled':
         statusText = 'The watcher is off and will stay off after reboot.';
+        tone = 'neutral';
         break;
       default:
         statusText = 'Select Install & Enable while your usual Sound Out is active.';
+        tone = 'neutral';
     }
-    if (fields.legacy === 'active') statusText += ' An older boot hook is still enabled.';
+    if (fields.legacy === 'active') {
+      statusText += ' An older boot hook is still enabled.';
+      if (tone !== 'danger') tone = 'warn';
+    }
     message.textContent = statusText;
+    setTone(tone, running);
   }
 
   async function act(action, quiet) {
@@ -114,7 +153,10 @@
     busy = true;
     if (!quiet) {
       buttons.forEach(button => button.setAttribute('aria-disabled', 'true'));
-      if (action !== 'status') message.textContent = action === 'enable' ? 'Starting watcher…' : 'Stopping watcher…';
+      if (action !== 'status') {
+        message.textContent = action === 'enable' ? 'Starting watcher…' : 'Stopping watcher…';
+        setTone('neutral', badge.dataset.state === 'running');
+      }
     }
     try {
       display(await invoke(action));
@@ -123,7 +165,10 @@
       badge.textContent = 'Unavailable';
       route.textContent = '—';
       previous.textContent = '—';
+      watcher.textContent = '—';
+      events.textContent = '—';
       message.textContent = error.message.trim();
+      setTone('danger');
     } finally {
       busy = false;
       buttons.forEach(button => button.removeAttribute('aria-disabled'));
